@@ -1,16 +1,19 @@
 #include <BluetoothSerial.h>
 #include "Arduino_CRC32.h"
-#include "esp_bt.h"
-#include "esp_bt_main.h"
-#include "esp_gap_bt_api.h"
-#include "esp_bt_device.h"
-#include "esp_spp_api.h"
+// #include "esp_bt.h"
+// #include "esp_bt_main.h"
+// #include "esp_gap_bt_api.h"
+// #include "esp_bt_device.h"
+// #include "esp_spp_api.h"
 #include "esp_task_wdt.h"
+
+#include "config.h"
+
 #if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
 #error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
 #endif
 
-#define MOTOR_TIME 3000
+#define MOTOR_TIME 1000
 
 extern uint8_t *printData;
 extern uint32_t printDataCount;
@@ -115,7 +118,7 @@ void paperang_send_ack(uint8_t type)
   paperang_send();
 }
 
-void paperang_send_msg(uint8_t type, const uint8_t* dat, uint16_t len)
+void paperang_send_msg(uint8_t type, const uint8_t *dat, uint16_t len)
 {
   dataPack[0] = START_BYTE;
   dataPack[1] = type;
@@ -130,7 +133,8 @@ void paperang_send_msg(uint8_t type, const uint8_t* dat, uint16_t len)
   paperang_send();
 }
 
-struct {
+struct
+{
   uint8_t packType;
   uint8_t packIndex;
   uint16_t dataLen;
@@ -139,82 +143,84 @@ uint8_t gotStartByte = 0;
 uint8_t c;
 uint16_t readpos = 0;
 uint8_t dataPack_read[2048];
-//#define PRINT_DATA_CACHE_SIZE 10240
-//uint8_t printDataCache[PRINT_DATA_CACHE_SIZE + 1024];
-//volatile uint16_t cacheOverflowed = 0;
-//volatile uint16_t printDataCacheHead = 0;
-//volatile uint16_t printDataCacheFoot = 0;
+// #define PRINT_DATA_CACHE_SIZE 10240
+// uint8_t printDataCache[PRINT_DATA_CACHE_SIZE + 1024];
+// volatile uint16_t cacheOverflowed = 0;
+// volatile uint16_t printDataCacheHead = 0;
+// volatile uint16_t printDataCacheFoot = 0;
 uint16_t dataPack_read_pos = 0;
-//volatile uint8_t cacheLock = 0;
+// volatile uint8_t cacheLock = 0;
 void paperang_process_data()
 {
-  uint32_t tmp32;
   switch (packHeader.packType)
   {
-    case PRINT_DATA:
-      /*
-        //while (cacheLock);
-        //cacheLock = 1;
-        memcpy(printDataCache + printDataCacheHead, dataPack_read, packHeader.dataLen);
-        printDataCacheHead += packHeader.dataLen;
-        if (printDataCacheHead >= PRINT_DATA_CACHE_SIZE)
-        {
-          printDataCacheHead = 0;
-          cacheOverflowed = printDataCacheHead - PRINT_DATA_CACHE_SIZE;
-        }
-        //cacheLock = 0;*/
-      return;
-    case SET_CRC_KEY:
-      tmp32 = dataPack_read[0] << 24 + dataPack_read[1] << 16 + dataPack_read[2] << 8 + dataPack_read[3];
-      crc32.init(tmp32);
-      break;
-    case GET_VERSION:
-      paperang_send_msg(SENT_VERSION, PRINTER_VERSION, 3);
-      break;
-    case GET_DEV_NAME:
-      paperang_send_msg(SENT_DEV_NAME, (uint8_t *)PRINTER_NAME, 2);
-      break;
-    case GET_SN:
-      paperang_send_msg(SENT_SN, (uint8_t *)PRINTER_SN, strlen((char *)PRINTER_SN));
-    case GET_POWER_DOWN_TIME:
-      paperang_send_msg(SENT_POWER_DOWN_TIME, (uint8_t *)&power_down_time, 2);
-      break;
-    case GET_BAT_STATUS:
-      paperang_send_msg(SENT_BAT_STATUS, &PRINTER_BATTERY, 1);
-      break;
-    case GET_COUNTRY_NAME:
-      paperang_send_msg(SENT_COUNTRY_NAME, (uint8_t *)COUNTRY_NAME, 2);
-      break;
-    case CMD_42:
-      paperang_send_msg(CMD_43, (uint8_t *)CMD_42_DATA, strlen(CMD_42_DATA));
-      break;
-    case CMD_7F:
-      paperang_send_msg(CMD_80, CMD_7F_DATA, 12);
-      break;
-    case CMD_81:
-      paperang_send_msg(CMD_82, CMD_81_DATA, 16);
-      break;
-    case CMD_40:
-      paperang_send_msg(CMD_41, CMD_40_DATA, 1);
-      break;
-    case SET_POWER_DOWN_TIME:
-      power_down_time = dataPack_read[0] << 8 + dataPack_read[1];
-      break;
-    case SET_HEAT_DENSITY:
-      heat_density = dataPack_read[0];
-      break;
-    case GET_HEAT_DENSITY:
-      paperang_send_msg(SENT_HEAT_DENSITY, &heat_density, 1);
-      break;
-    case FEED_LINE:
-      if (printDataCount / 48 != 0) {
-        startPrint();
-        goFront(200, MOTOR_TIME);
-      }
-      printDataCount = 0;
-      break;
-    default:
-      break;
+  case PRINT_DATA:
+    /*
+//while (cacheLock);
+//cacheLock = 1;
+memcpy(printDataCache + printDataCacheHead, dataPack_read, packHeader.dataLen);
+printDataCacheHead += packHeader.dataLen;
+if (printDataCacheHead >= PRINT_DATA_CACHE_SIZE)
+{
+printDataCacheHead = 0;
+cacheOverflowed = printDataCacheHead - PRINT_DATA_CACHE_SIZE;
+}
+//cacheLock = 0;*/
+    return;
+  case SET_CRC_KEY:
+  {
+    uint32_t tmp32 = dataPack_read[0] << 24 + dataPack_read[1] << 16 + dataPack_read[2] << 8 + dataPack_read[3];
+    crc32.init(tmp32);
+    break;
+  }
+  case GET_VERSION:
+    paperang_send_msg(SENT_VERSION, PRINTER_VERSION, 3);
+    break;
+  case GET_DEV_NAME:
+    paperang_send_msg(SENT_DEV_NAME, (uint8_t *)PRINTER_NAME, 2);
+    break;
+  case GET_SN:
+    paperang_send_msg(SENT_SN, (uint8_t *)PRINTER_SN, strlen((char *)PRINTER_SN));
+  case GET_POWER_DOWN_TIME:
+    paperang_send_msg(SENT_POWER_DOWN_TIME, (uint8_t *)&power_down_time, 2);
+    break;
+  case GET_BAT_STATUS:
+    paperang_send_msg(SENT_BAT_STATUS, &PRINTER_BATTERY, 1);
+    break;
+  case GET_COUNTRY_NAME:
+    paperang_send_msg(SENT_COUNTRY_NAME, (uint8_t *)COUNTRY_NAME, 2);
+    break;
+  case CMD_42:
+    paperang_send_msg(CMD_43, (uint8_t *)CMD_42_DATA, strlen(CMD_42_DATA));
+    break;
+  case CMD_7F:
+    paperang_send_msg(CMD_80, CMD_7F_DATA, 12);
+    break;
+  case CMD_81:
+    paperang_send_msg(CMD_82, CMD_81_DATA, 16);
+    break;
+  case CMD_40:
+    paperang_send_msg(CMD_41, CMD_40_DATA, 1);
+    break;
+  case SET_POWER_DOWN_TIME:
+    power_down_time = dataPack_read[0] << 8 + dataPack_read[1];
+    break;
+  case SET_HEAT_DENSITY:
+    heat_density = dataPack_read[0];
+    break;
+  case GET_HEAT_DENSITY:
+    paperang_send_msg(SENT_HEAT_DENSITY, &heat_density, 1);
+    break;
+  case FEED_LINE:
+    if (printDataCount / 48 != 0)
+    {
+      startPrint();
+      goFront(400, MOTOR_TIME);
+    }
+    printDataCount = 0;
+    break;
+  default:
+    break;
   }
   paperang_send_ack(packHeader.packType);
 }
@@ -269,37 +275,36 @@ void paperang_core0()
     ,  NULL
     ,  0);
   */
-
 }
 
 void paperang_app()
 {
-  uint16_t i = 0;
-  SerialBT.begin("Paperang"); //Bluetooth device name
-  //重新设置class of device
+  // uint16_t i = 0;
+  SerialBT.begin("Paperang"); // Bluetooth device name
+  // 重新设置class of device
   esp_bt_cod_t cod;
-  cod.major = 6;                   //主设备类型
-  cod.minor = 0b100000;            //次设备类型
-  cod.service = 0b00000100000;     //服务类型
+  cod.major = 6;               // 主设备类型
+  cod.minor = 0b100000;        // 次设备类型
+  cod.service = 0b00000100000; // 服务类型
   esp_bt_gap_set_cod(cod, ESP_BT_INIT_COD);
   crc32.init(0x35769521);
   packHeader.dataLen = 0;
   Serial.println();
   Serial.println("3秒内输入要测试的STB序号开始打印测试页（1-6）: ");
   delay(3000);
-  if(Serial.available())
+  if (Serial.available())
   {
     char chr = Serial.read();
-    if(chr >= '1' && chr <= '6')
+    if (chr >= '1' && chr <= '6')
     {
       chr -= 0x30;
-      testPage((uint8_t)chr-1);
+      testPage((uint8_t)chr - 1);
     }
-    else if(chr == 'a')              //确认STB位置
+    else if (chr == 'a') // 确认STB位置
     {
       testSTB();
     }
-    else if(chr == 'A')              //确认STB位置
+    else if (chr == 'A') // 确认STB位置
     {
       testPage(0);
       testPage(1);
@@ -310,66 +315,113 @@ void paperang_app()
     }
     Serial.flush();
   }
-  while (1) {
-    if (SerialBT.available()) {
-      c = SerialBT.read();
+  Serial.println("listening");
+  while (1)
+  {
+    while (!SerialBT.available())
+    {
+      // vTaskDelay(100 / portTICK_PERIOD_MS);
+      yield();
+    }
+    c = SerialBT.read();
+    // Serial.printf("readpos:%d c:0x%02x\n", readpos, c);
+    switch (readpos)
+    {
+    case 0:
       if (c == START_BYTE && gotStartByte == 0)
       {
         gotStartByte = 1;
         readpos = 0;
+        Serial.println("[Package start]");
       }
-      else if (readpos == 1)
+      break;
+    case 1:
+      packHeader.packType = c;
+      Serial.println(packHeader.packType);
+
+      packHeader.packIndex = SerialBT.read();
+      packHeader.dataLen = SerialBT.read();
+
+      packHeader.dataLen += SerialBT.read() << 8;
+      Serial.println(packHeader.dataLen);
+      break;
+
+    case 2:
+      if (packHeader.dataLen == 0 || packHeader.dataLen >= 2048)
       {
-        packHeader.packType = c;
-        //Serial.println(packHeader.packType);
-        packHeader.packIndex = SerialBT.read();
-        packHeader.dataLen = SerialBT.read();
-        packHeader.dataLen += SerialBT.read() << 8;
-        //Serial.println(packHeader.dataLen);
+        Serial.printf("dataLen error, %d\n", packHeader.dataLen);
+        gotStartByte = 0;
+        dataPack_read_pos = 0;
+        readpos = 0;
+        packHeader.dataLen = 0;
+        break;
       }
-      else if (readpos == 2 && packHeader.dataLen != 0 && packHeader.dataLen < 2048)
+
+      if (packHeader.packType == PRINT_DATA)
       {
-        i = packHeader.dataLen - 1;
-        if (packHeader.packType == PRINT_DATA)
+        if (printDataCount + packHeader.dataLen > BUFFER_SIZE)
         {
-          printData[printDataCount++] = c;
-          while (i) {
-            while (SerialBT.available() == 0);
-            printData[printDataCount++] = SerialBT.read();
-            --i;
+          Serial.println("buffer overflow");
+          for (int j = 1; j < packHeader.dataLen; j++)
+          {
+            while (SerialBT.read() == -1)
+              ;
           }
+          break;
         }
-        else
+
+        printData[printDataCount++] = c;
+        uint32_t readSize = SerialBT.readBytes(printData + printDataCount, packHeader.dataLen - 1);
+        if (readSize != packHeader.dataLen - 1)
         {
-          dataPack_read[dataPack_read_pos++] = c;
-          while (i) {
-            dataPack_read[dataPack_read_pos++] = SerialBT.read();
-            --i;
-          }
+          Serial.println("lost package");
+          gotStartByte = 0;
+          dataPack_read_pos = 0;
+          readpos = 0;
+          packHeader.dataLen = 0;
+          break;
         }
+
+        printDataCount += readSize;
       }
-      else if (readpos < 7)
+      else
       {
-        ;
+        dataPack_read[dataPack_read_pos++] = c;
+        dataPack_read_pos += SerialBT.readBytes(dataPack_read + dataPack_read_pos, packHeader.dataLen - 1);
       }
-      else if (c == END_BYTE && readpos == 7)
+
+      break;
+    case 3:
+      // CRC
+      for (int j = 1; j < 4; j++)
+      {
+        while (SerialBT.read() == -1)
+          ;
+      }
+      break;
+    case 4:
+      if (c == END_BYTE)
       {
         paperang_process_data();
         gotStartByte = 0;
         dataPack_read_pos = 0;
         readpos = 0;
         packHeader.dataLen = 0;
+        Serial.println("[Package end]");
       }
-      else
-      {
-        Serial.println("ERROR");
-        gotStartByte = 0;
-        dataPack_read_pos = 0;
-        readpos = 0;
-        packHeader.dataLen = 0;
-      }
-      if (gotStartByte == 1)
-        ++readpos;
+      break;
+    default:
+      Serial.println("ERROR");
+      gotStartByte = 0;
+      dataPack_read_pos = 0;
+      readpos = 0;
+      packHeader.dataLen = 0;
+      continue;
+    }
+
+    if (gotStartByte)
+    {
+      readpos++;
     }
   }
 }

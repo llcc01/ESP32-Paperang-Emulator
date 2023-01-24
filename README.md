@@ -148,3 +148,19 @@ Linux，一般在
 [hansel163-paperang_printer](https://github.com/hansel163/paperang_printer )
 
 先整理这么多吧
+
+## llcc新增
+
+### OLED显示
+
+使用U8g2库
+
+### 添加传感器支持
+
+- 缺纸传感器
+- 轴传感器
+
+### 添加针对芝柯2寸打印机支持
+
+- 热敏打印头：LTPD245
+- DST两个为一组

@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:/Users/lc/AppData/Local/Arduino15/packages/esp32/hardware/esp32/2.0.6/variants/esp32",
+                "C:/Users/lc/AppData/Local/Arduino15/packages/esp32/hardware/esp32/2.0.6/cores/esp32/**",
+                "C:/Users/lc/AppData/Local/Arduino15/packages/esp32/hardware/esp32/2.0.6/tools/sdk/esp32/include/**",
+                "C:/Users/lc/AppData/Local/Arduino15/packages/esp32/hardware/esp32/2.0.6/tools/sdk/esp32/qio_qspi/include",
+                "C:/Users/lc/AppData/Local/Arduino15/packages/esp32/tools/xtensa-esp32-elf-gcc/gcc8_4_0-esp-2021r2-patch5/xtensa-esp32-elf/include/**",
+                "C:/Users/lc/AppData/Local/Arduino15/packages/esp32/tools/xtensa-esp32-elf-gcc/gcc8_4_0-esp-2021r2-patch5/xtensa-esp32-elf/sys-include/**",
+                "C:/Users/lc/AppData/Local/Arduino15/packages/esp32/hardware/esp32/2.0.6/libraries/**",
+                "C:/Users/lc/Documents/Arduino/libraries/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "ARDUINO"
+            ],
+            "windowsSdkVersion": "10.0.22621.0",
+            "cStandard": "c17",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}

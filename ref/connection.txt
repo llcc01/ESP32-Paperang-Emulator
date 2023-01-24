@@ -1,0 +1,17 @@
+红：DST6，DST5
+橙：DST4，DST3
+黄：DST2，DST1
+
+
+棕：DI
+白：CLK
+灰：LAT#
+
+绿：ENA1
+蓝：IN1
+蓝灰：ENA2
+深灰：IN2
+
+橙：PS
+灰：TH
+黄：HS

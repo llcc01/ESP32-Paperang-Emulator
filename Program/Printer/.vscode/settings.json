@@ -1,0 +1,13 @@
+{
+    "C_Cpp.default.compilerPath": "C:/Users/lc/AppData/Local/Arduino15/packages/esp32/tools/xtensa-esp32-elf-gcc/gcc8_4_0-esp-2021r2-patch5/bin/xtensa-esp32-elf-g++.exe",
+    "files.associations": {
+        "array": "cpp",
+        "deque": "cpp",
+        "forward_list": "cpp",
+        "list": "cpp",
+        "string": "cpp",
+        "vector": "cpp",
+        "iterator": "cpp",
+        "string_view": "cpp"
+    }
+}
